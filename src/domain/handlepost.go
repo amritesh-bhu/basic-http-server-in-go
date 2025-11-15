@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"errors"
 	"sync"
 )
 
@@ -38,40 +39,40 @@ func GetAllPosts() []Post {
 	return result
 }
 
-func GetPostByID(id int) (Post, bool) {
+func GetPostByID(id int) (Post, error) {
 	postsMu.Lock()
 	defer postsMu.Unlock()
 
 	p, ok := posts[id]
 	if !ok {
-		return Post{}, false
+		return Post{}, errors.New("Post not found")
 	}
-	return p, true
+	return p, nil
 }
 
-func UpdatePost(id int, p Post) (Post, bool) {
+func UpdatePost(id int, p Post) (Post, error) {
 	postsMu.Lock()
 	defer postsMu.Unlock()
 
 	_, exists := posts[id]
 	if !exists {
-		return Post{}, false
+		return Post{}, errors.New("Post not found")
 	}
 
 	p.ID = id
 	posts[id] = p
-	return p, true
+	return p, nil
 }
 
-func DeletePost(id int) bool {
+func DeletePost(id int) error {
 	postsMu.Lock()
 	defer postsMu.Unlock()
 
 	_, exists := posts[id]
 	if !exists {
-		return false
+		return errors.New("Post not found")
 	}
 
 	delete(posts, id)
-	return true
+	return nil
 }
